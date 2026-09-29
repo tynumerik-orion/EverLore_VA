@@ -92,7 +92,8 @@
       "Chapter 75"
     ],
     "prefix": "s1-c",
-    "path": "stories/vampire-academy/never-tear-us-apart.html"
+    "path": "stories/vampire-academy/never-tear-us-apart.html",
+    "scriptPath": "stories/vampire-academy/never-tear-us-apart.js"
   },
   {
     "slug": "into-the-ether",
@@ -182,7 +183,8 @@
       "Autumn, Reaping What We've Sown: Part 5"
     ],
     "prefix": "s2-c",
-    "path": "stories/vampire-academy/into-the-ether.html"
+    "path": "stories/vampire-academy/into-the-ether.html",
+    "scriptPath": "stories/vampire-academy/into-the-ether.js"
   },
   {
     "slug": "i-never-told-you-i-love-you",
@@ -308,7 +310,8 @@
       "Epilogue"
     ],
     "prefix": "s3-c",
-    "path": "stories/vampire-academy/i-never-told-you-i-love-you.html"
+    "path": "stories/vampire-academy/i-never-told-you-i-love-you.html",
+    "scriptPath": "stories/vampire-academy/i-never-told-you-i-love-you.js"
   },
   {
     "slug": "reality-bites",
@@ -433,7 +436,8 @@
       "More Exciting News!"
     ],
     "prefix": "s4-c",
-    "path": "stories/vampire-academy/reality-bites.html"
+    "path": "stories/vampire-academy/reality-bites.html",
+    "scriptPath": "stories/vampire-academy/reality-bites.js"
   },
   {
     "slug": "afterlife",
@@ -480,7 +484,8 @@
       "Epilogue"
     ],
     "prefix": "s5-c",
-    "path": "stories/vampire-academy/afterlife.html"
+    "path": "stories/vampire-academy/afterlife.html",
+    "scriptPath": "stories/vampire-academy/afterlife.js"
   },
   {
     "slug": "love-fades-mine-has",
@@ -514,7 +519,8 @@
       "Chapter 14"
     ],
     "prefix": "s6-c",
-    "path": "stories/vampire-academy/love-fades-mine-has.html"
+    "path": "stories/vampire-academy/love-fades-mine-has.html",
+    "scriptPath": "stories/vampire-academy/love-fades-mine-has.js"
   },
   {
     "slug": "with-or-without-you",
@@ -560,7 +566,8 @@
       "Chapter 26"
     ],
     "prefix": "s7-c",
-    "path": "stories/vampire-academy/with-or-without-you.html"
+    "path": "stories/vampire-academy/with-or-without-you.html",
+    "scriptPath": "stories/vampire-academy/with-or-without-you.js"
   },
   {
     "slug": "anything-for-her",
@@ -625,7 +632,8 @@
       "Chapter 45"
     ],
     "prefix": "s8-c",
-    "path": "stories/vampire-academy/anything-for-her.html"
+    "path": "stories/vampire-academy/anything-for-her.html",
+    "scriptPath": "stories/vampire-academy/anything-for-her.js"
   },
   {
     "slug": "building-the-tension",
@@ -687,7 +695,8 @@
       "42 - Epilogue"
     ],
     "prefix": "s9-c",
-    "path": "stories/vampire-academy/building-the-tension.html"
+    "path": "stories/vampire-academy/building-the-tension.html",
+    "scriptPath": "stories/vampire-academy/building-the-tension.js"
   },
   {
     "slug": "her-alpha",
@@ -760,6 +769,7 @@
       "Chapter 53"
     ],
     "prefix": "s10-c",
-    "path": "stories/vampire-academy/her-alpha.html"
+    "path": "stories/vampire-academy/her-alpha.html",
+    "scriptPath": "stories/vampire-academy/her-alpha.js"
   }
 ]

@@ -20,6 +20,32 @@ const backToDetails = document.getElementById('backToDetails');
 const fullscreenToggle = document.getElementById('fullscreenToggle');
 const fullscreenText = document.getElementById('fullscreenText');
 const immersiveClock = document.getElementById('immersiveClock');
+const readingSettingsZone = document.getElementById('readingSettingsZone');
+const readingSettingsToggle = document.getElementById('readingSettingsToggle');
+const readingSettingsPanel = document.getElementById('readingSettingsPanel');
+const floatingTextSmaller = document.getElementById('floatingTextSmaller');
+const floatingTextReset = document.getElementById('floatingTextReset');
+const floatingTextLarger = document.getElementById('floatingTextLarger');
+const floatingTextSizeValue = document.getElementById('floatingTextSizeValue');
+const floatingFontDropdown = document.querySelector('[data-dropdown="floating-font"]');
+const floatingFontDropdownTrigger = document.getElementById('floatingFontDropdownTrigger');
+const floatingFontDropdownValue = document.getElementById('floatingFontDropdownValue');
+const floatingFontDropdownMenu = document.getElementById('floatingFontDropdownMenu');
+const floatingThemeDropdown = document.querySelector('[data-dropdown="floating-theme"]');
+const floatingThemeDropdownTrigger = document.getElementById('floatingThemeDropdownTrigger');
+const floatingThemeDropdownValue = document.getElementById('floatingThemeDropdownValue');
+const floatingThemeDropdownMenu = document.getElementById('floatingThemeDropdownMenu');
+const backgroundChoice = document.getElementById('backgroundChoice');
+const backgroundDropdown = document.querySelector('[data-dropdown="background"]');
+const backgroundDropdownTrigger = document.getElementById('backgroundDropdownTrigger');
+const backgroundDropdownValue = document.getElementById('backgroundDropdownValue');
+const backgroundDropdownMenu = document.getElementById('backgroundDropdownMenu');
+const floatingBackgroundDropdown = document.querySelector('[data-dropdown="floating-background"]');
+const floatingBackgroundDropdownTrigger = document.getElementById('floatingBackgroundDropdownTrigger');
+const floatingBackgroundDropdownValue = document.getElementById('floatingBackgroundDropdownValue');
+const floatingBackgroundDropdownMenu = document.getElementById('floatingBackgroundDropdownMenu');
+const floatingWeightControls = document.getElementById('floatingWeightControls');
+const floatingTextToneControls = document.getElementById('floatingTextToneControls');
 const DEFAULT_TEXT_SIZE = 19;
 const MIN_TEXT_SIZE = 17;
 const MAX_TEXT_SIZE = 22;
@@ -33,6 +59,7 @@ function setTocState(collapsed) {
 function applyTextSize(size) {
   const clamped = Math.min(MAX_TEXT_SIZE, Math.max(MIN_TEXT_SIZE, size));
   root.style.setProperty('--chapter-font-size', clamped + 'px');
+  if (floatingTextSizeValue) floatingTextSizeValue.textContent = clamped + ' px';
   try { localStorage.setItem('everloreTextSize', String(clamped)); } catch (e) {}
 }
 
@@ -48,33 +75,86 @@ function readSavedTextSize() {
 
 const FONT_MAP = {
   lato: '"Lato", "Segoe UI", Arial, sans-serif',
+  inter: '"Inter", "Segoe UI", Arial, sans-serif',
+  opensans: '"Open Sans", "Segoe UI", Arial, sans-serif',
   georgia: 'Georgia, "Times New Roman", serif',
   verdana: 'Verdana, Geneva, sans-serif'
 };
 
 function applyReadingFont(key) {
   const safeKey = FONT_MAP[key] ? key : 'lato';
+  const labels = {lato:'Lato', inter:'Inter', opensans:'Open Sans', georgia:'Georgia', verdana:'Verdana'};
   root.style.setProperty('--chapter-font-family', FONT_MAP[safeKey]);
   if (fontChoice) fontChoice.value = safeKey;
-  const labels = {lato:'Lato', georgia:'Georgia', verdana:'Verdana'};
   if (fontDropdownValue) fontDropdownValue.textContent = labels[safeKey];
   markSelectedOption(fontDropdownMenu, safeKey);
+  if (floatingFontDropdownValue) floatingFontDropdownValue.textContent = labels[safeKey];
+  markSelectedOption(floatingFontDropdownMenu, safeKey);
   try { localStorage.setItem('everloreReadingFont', safeKey); } catch (e) {}
 }
 
 function applyReadingTheme(theme) {
   const safeTheme = ['dark','light','sepia'].includes(theme) ? theme : 'dark';
-  reader?.setAttribute('data-reading-theme', safeTheme);
-  if (themeChoice) themeChoice.value = safeTheme;
   const labels = {dark:'Sombre', light:'Clair', sepia:'Sépia'};
+  reader?.setAttribute('data-reading-theme', safeTheme);
+  document.body.setAttribute('data-everlore-reading-mode', safeTheme);
+  if (themeChoice) themeChoice.value = safeTheme;
   if (themeDropdownValue) themeDropdownValue.textContent = labels[safeTheme];
   markSelectedOption(themeDropdownMenu, safeTheme);
+  if (floatingThemeDropdownValue) floatingThemeDropdownValue.textContent = labels[safeTheme];
+  markSelectedOption(floatingThemeDropdownMenu, safeTheme);
   try { localStorage.setItem('everloreReadingTheme', safeTheme); } catch (e) {}
+}
+
+function applyReadingBackground(background) {
+  const safeBackground = ['amethyst','wildnight'].includes(background) ? background : 'amethyst';
+  const labels = {amethyst:'Améthyste Nocturne', wildnight:'Nuit Sauvage'};
+  document.body.setAttribute('data-everlore-background', safeBackground === 'wildnight' ? 'wildnight' : 'default');
+  if (backgroundChoice) backgroundChoice.value = safeBackground;
+  if (backgroundDropdownValue) backgroundDropdownValue.textContent = labels[safeBackground];
+  markSelectedOption(backgroundDropdownMenu, safeBackground);
+  if (floatingBackgroundDropdownValue) floatingBackgroundDropdownValue.textContent = labels[safeBackground];
+  markSelectedOption(floatingBackgroundDropdownMenu, safeBackground);
+  try { localStorage.setItem('everloreReadingBackground', safeBackground); } catch (e) {}
 }
 
 function readSavedSetting(key, fallback) {
   try { return localStorage.getItem(key) || fallback; }
   catch (e) { return fallback; }
+}
+
+const READING_WEIGHTS = ['400','500','600'];
+
+function applyReadingWeight(weight) {
+  const safeWeight = READING_WEIGHTS.includes(String(weight)) ? String(weight) : '500';
+  root.style.setProperty('--chapter-font-weight', safeWeight);
+  floatingWeightControls?.querySelectorAll('[data-weight]').forEach(btn => {
+    const active = btn.dataset.weight === safeWeight;
+    btn.classList.toggle('is-active', active);
+    btn.setAttribute('aria-pressed', String(active));
+  });
+  try { localStorage.setItem('everloreReadingWeight', safeWeight); } catch (e) {}
+}
+
+const READING_TEXT_TONES = ['soft','normal','bright','night'];
+
+function applyReadingTextTone(tone) {
+  const safeTone = READING_TEXT_TONES.includes(String(tone)) ? String(tone) : 'normal';
+  document.body.setAttribute('data-everlore-text-tone', safeTone);
+  floatingTextToneControls?.querySelectorAll('[data-tone]').forEach(btn => {
+    const active = btn.dataset.tone === safeTone;
+    btn.classList.toggle('is-active', active);
+    btn.setAttribute('aria-pressed', String(active));
+  });
+  try { localStorage.setItem('everloreReadingTextTone', safeTone); } catch (e) {}
+}
+
+
+function setReadingSettingsOpen(open) {
+  if (!readingSettingsZone || !readingSettingsToggle || !readingSettingsPanel) return;
+  readingSettingsZone.classList.toggle('is-open', open);
+  readingSettingsToggle.setAttribute('aria-expanded', String(open));
+  readingSettingsPanel.setAttribute('aria-hidden', String(!open));
 }
 
 function goBackToDetails() {
@@ -124,7 +204,17 @@ textLarger?.addEventListener('click', () => {
 
 applyTextSize(readSavedTextSize());
 applyReadingFont(readSavedSetting('everloreReadingFont', 'lato'));
-applyReadingTheme(readSavedSetting('everloreReadingTheme', 'dark'));
+applyReadingWeight(readSavedSetting('everloreReadingWeight', '500'));
+applyReadingTextTone(readSavedSetting('everloreReadingTextTone', 'normal'));
+
+const legacyThemeSetting = readSavedSetting('everloreReadingTheme', 'dark');
+const initialMode = ['dark','light','sepia'].includes(legacyThemeSetting) ? legacyThemeSetting : 'dark';
+let initialBackground = readSavedSetting('everloreReadingBackground', '');
+if (!['amethyst','wildnight'].includes(initialBackground)) {
+  initialBackground = legacyThemeSetting === 'wildnight' ? 'wildnight' : 'amethyst';
+}
+applyReadingTheme(initialMode);
+applyReadingBackground(initialBackground);
 
 fontChoice?.addEventListener('change', () => applyReadingFont(fontChoice.value));
 themeChoice?.addEventListener('change', () => applyReadingTheme(themeChoice.value));
@@ -132,6 +222,67 @@ fontDropdownTrigger?.addEventListener('click', () => toggleEverDropdown(fontDrop
 themeDropdownTrigger?.addEventListener('click', () => toggleEverDropdown(themeDropdown));
 fontDropdownMenu?.querySelectorAll('.ever-dropdown-option').forEach(btn => btn.addEventListener('click', () => { applyReadingFont(btn.dataset.value); closeEverDropdown(fontDropdown); }));
 themeDropdownMenu?.querySelectorAll('.ever-dropdown-option').forEach(btn => btn.addEventListener('click', () => { applyReadingTheme(btn.dataset.value); closeEverDropdown(themeDropdown); }));
+backgroundDropdownTrigger?.addEventListener('click', () => toggleEverDropdown(backgroundDropdown));
+backgroundDropdownMenu?.querySelectorAll('.ever-dropdown-option').forEach(btn => btn.addEventListener('click', () => { applyReadingBackground(btn.dataset.value); closeEverDropdown(backgroundDropdown); }));
+
+floatingFontDropdownTrigger?.addEventListener('click', (event) => {
+  event.stopPropagation();
+  toggleEverDropdown(floatingFontDropdown);
+});
+floatingFontDropdownMenu?.querySelectorAll('.ever-dropdown-option').forEach(btn => btn.addEventListener('click', (event) => {
+  event.stopPropagation();
+  applyReadingFont(btn.dataset.value);
+  closeEverDropdown(floatingFontDropdown);
+}));
+
+floatingThemeDropdownTrigger?.addEventListener('click', (event) => {
+  event.stopPropagation();
+  toggleEverDropdown(floatingThemeDropdown);
+});
+floatingThemeDropdownMenu?.querySelectorAll('.ever-dropdown-option').forEach(btn => btn.addEventListener('click', (event) => {
+  event.stopPropagation();
+  applyReadingTheme(btn.dataset.value);
+  closeEverDropdown(floatingThemeDropdown);
+}));
+
+floatingBackgroundDropdownTrigger?.addEventListener('click', (event) => {
+  event.stopPropagation();
+  toggleEverDropdown(floatingBackgroundDropdown);
+});
+floatingBackgroundDropdownMenu?.querySelectorAll('.ever-dropdown-option').forEach(btn => btn.addEventListener('click', (event) => {
+  event.stopPropagation();
+  applyReadingBackground(btn.dataset.value);
+  closeEverDropdown(floatingBackgroundDropdown);
+}));
+
+
+readingSettingsToggle?.addEventListener('click', (event) => {
+  event.stopPropagation();
+  setReadingSettingsOpen(!readingSettingsZone.classList.contains('is-open'));
+});
+readingSettingsPanel?.addEventListener('click', event => event.stopPropagation());
+
+floatingTextSmaller?.addEventListener('click', () => {
+  const current = parseFloat(getComputedStyle(root).getPropertyValue('--chapter-font-size')) || DEFAULT_TEXT_SIZE;
+  applyTextSize(current - STEP_TEXT_SIZE);
+});
+floatingTextReset?.addEventListener('click', () => applyTextSize(DEFAULT_TEXT_SIZE));
+floatingTextLarger?.addEventListener('click', () => {
+  const current = parseFloat(getComputedStyle(root).getPropertyValue('--chapter-font-size')) || DEFAULT_TEXT_SIZE;
+  applyTextSize(current + STEP_TEXT_SIZE);
+});
+
+
+
+floatingWeightControls?.querySelectorAll('[data-weight]').forEach(btn => {
+  btn.addEventListener('click', () => applyReadingWeight(btn.dataset.weight));
+});
+
+floatingTextToneControls?.querySelectorAll('[data-tone]').forEach(btn => {
+  btn.addEventListener('click', () => applyReadingTextTone(btn.dataset.tone));
+});
+
+document.addEventListener('click', () => setReadingSettingsOpen(false));
 backToDetails?.addEventListener('click', goBackToDetails);
 fullscreenToggle?.addEventListener('click', toggleFullscreenMode);
 document.addEventListener('fullscreenchange', syncFullscreenButton);
@@ -181,7 +332,7 @@ const storySummary = document.getElementById('storySummary');
 const storySummaryBlock = document.getElementById('storySummaryBlock');
 const summaryToggle = document.getElementById('summaryToggle');
 const tocList = document.querySelector('#sommaire .toc-list');
-let activeStoryIndex = 0;
+let activeStoryIndex = Number.isInteger(window.EVERLORE_INITIAL_STORY_INDEX) ? window.EVERLORE_INITIAL_STORY_INDEX : 0;
 
 EVERLORE_STORIES.forEach((story,index) => {
   const option = document.createElement('option');
@@ -228,10 +379,26 @@ function formatSourceLabel(url) {
 function renderStory(index, options = {}) {
   const { keepScroll = false, chapterIndex = null } = options;
   const safeIndex = Math.max(0, Math.min(EVERLORE_STORIES.length - 1, index));
-  activeStoryIndex = safeIndex;
   const story = EVERLORE_STORIES[safeIndex];
+  const loadedNode = document.querySelector(`.story-content[data-story="${story.slug}"]`);
 
-  document.querySelectorAll('.story-content').forEach((el,i) => { el.hidden = i !== safeIndex; });
+  if (!loadedNode) {
+    try { localStorage.setItem('everloreLastStoryIndex', String(safeIndex)); } catch (e) {}
+    const url = new URL(window.location.href);
+    url.searchParams.set('story', String(safeIndex));
+    if (chapterIndex !== null) {
+      url.hash = `#${story.prefix}${chapterIndex}`;
+    } else {
+      url.hash = '';
+    }
+    window.location.href = url.href;
+    return;
+  }
+
+  activeStoryIndex = safeIndex;
+  try { localStorage.setItem('everloreLastStoryIndex', String(safeIndex)); } catch (e) {}
+
+  document.querySelectorAll('.story-content').forEach(el => { el.hidden = el !== loadedNode; });
   storyChoice.value = String(safeIndex);
   if (storyDropdownValue) storyDropdownValue.textContent = story.title;
   markSelectedOption(storyDropdownMenu, safeIndex);
@@ -260,9 +427,13 @@ function renderStory(index, options = {}) {
     a.addEventListener('click', (event) => {
       event.preventDefault();
       document.getElementById(targetId)?.scrollIntoView({behavior:'auto',block:'start'});
+      try { history.replaceState(null, '', `#${targetId}`); } catch (e) {}
+      updateCurrentChapterHighlight();
     });
     tocList.appendChild(a);
   });
+
+  updateCurrentChapterHighlight();
 
   if (chapterIndex !== null) {
     const id = `${story.prefix}${chapterIndex}`;
@@ -281,6 +452,21 @@ summaryToggle.addEventListener('click', () => {
 });
 
 /* Permet à un lien direct #s3-c12 d'activer automatiquement la bonne histoire. */
+
+function updateCurrentChapterHighlight() {
+  const story = EVERLORE_STORIES?.[activeStoryIndex];
+  if (!story) return;
+  let currentId = '';
+  const hashMatch = location.hash.match(/^#(s\d+-c\d+)$/);
+  if (hashMatch) currentId = hashMatch[1];
+
+  tocList?.querySelectorAll('a').forEach(a => {
+    a.classList.toggle('is-current', Boolean(currentId) && a.dataset.target === currentId);
+  });
+}
+
+window.addEventListener('hashchange', updateCurrentChapterHighlight);
+
 function activateFromHash() {
   const match = location.hash.match(/^#s(\d+)-c(\d+)$/);
   if (!match) return false;
@@ -292,7 +478,7 @@ function activateFromHash() {
 }
 
 setTocState(true);
-if (!activateFromHash()) renderStory(0, { keepScroll: true });
+if (!activateFromHash()) renderStory(activeStoryIndex, { keepScroll: true });
 window.addEventListener('pageshow', () => setTocState(true));
 window.addEventListener('hashchange', activateFromHash);
 
@@ -300,13 +486,18 @@ window.addEventListener('hashchange', activateFromHash);
 /* ===== bloc suivant ===== */
 
 
-/* ===== EverLore · langue Originale / Français avec cache local =====
-   Le mode Français réutilise une traduction mémorisée localement.
-   Pour l'alimenter : traduire la page avec Chrome puis cliquer sur ↧ FR. */
+/* ===== EverLore · traduction progressive optimisée V24.8 =====
+   Objectif : ne jamais bloquer l'interface.
+   - MutationObserver léger : il marque seulement les chapitres modifiés.
+   - Analyse/sauvegarde différée et séquentielle.
+   - Aucun clonage lourd dans le callback MutationObserver.
+   - FR actif visible immédiatement.
+*/
 (() => {
   const DB_NAME = 'everloreTranslationCache';
   const DB_VERSION = 1;
   const STORE = 'translations';
+
   const languageDropdown = document.querySelector('[data-dropdown="language"]');
   const languageTrigger = document.getElementById('languageDropdownTrigger');
   const languageValue = document.getElementById('languageDropdownValue');
@@ -314,55 +505,145 @@ window.addEventListener('hashchange', activateFromHash);
   const saveButton = document.getElementById('saveFrenchCache');
   const translationCount = document.getElementById('translationCount');
   const toast = document.getElementById('translationToast');
+
   let languageMode = 'original';
   let toastTimer = 0;
+  let mutationObserver = null;
+  let ignoreMutationsUntil = 0;
+  let refreshTimer = 0;
+  let processingDirty = false;
+  let dirtyTimer = 0;
 
+  const dirtyChapterIds = new Set();
   const originalBodies = new Map();
-  document.querySelectorAll('.chapter').forEach(chapter => {
+  const originalTexts = new Map();
+  const lastSavedFingerprints = new Map();
+
+  const FR_WORDS = new Set([
+    'le','la','les','un','une','des','de','du','au','aux','et','ou','mais','donc','or','ni','car',
+    'je','tu','il','elle','nous','vous','ils','elles','me','te','se','mon','ma','mes','ton','ta','tes',
+    'son','sa','ses','notre','votre','leur','leurs','ce','cet','cette','ces','ça','cela','qui','que',
+    'quoi','dont','où','dans','sur','sous','avec','sans','pour','par','vers','chez','entre','avant',
+    'après','plus','moins','très','pas','ne','est','était','étaient','suis','sommes','sont','avait',
+    'avaient','a','ai','avons','ont','comme','quand','alors','tout','tous','toute','toutes'
+  ]);
+
+  const EN_WORDS = new Set([
+    'the','a','an','and','or','but','so','because','i','you','he','she','we','they','me','him','her',
+    'us','them','my','your','his','our','their','this','that','these','those','who','what','where',
+    'when','which','in','on','at','to','from','with','without','for','by','before','after','more',
+    'less','very','not','is','was','were','am','are','be','been','had','have','has','do','did',
+    'does','as','all','every','could','would','should','will','just','into','out','up','down'
+  ]);
+
+  function cleanClone(chapter) {
     const clone = chapter.cloneNode(true);
-    clone.querySelector('.chapter-nav')?.remove();
+    clone.querySelectorAll('.chapter-nav, .chapter-fav-button').forEach(node => node.remove());
+    return clone;
+  }
+
+  function normalizeText(text) {
+    return String(text || '').replace(/\u00a0/g,' ').replace(/\s+/g,' ').trim();
+  }
+
+  function chapterText(chapter) {
+    return normalizeText(cleanClone(chapter).textContent);
+  }
+
+  function chapterHtml(chapter) {
+    return cleanClone(chapter).innerHTML;
+  }
+
+  function textFingerprint(text) {
+    const t = normalizeText(text);
+    let hash = 2166136261;
+    for (let i = 0; i < t.length; i += Math.max(1, Math.floor(t.length / 600))) {
+      hash ^= t.charCodeAt(i);
+      hash = Math.imul(hash, 16777619);
+    }
+    return `${t.length}:${hash >>> 0}`;
+  }
+
+  document.querySelectorAll('.chapter').forEach(chapter => {
+    const clone = cleanClone(chapter);
+    const text = normalizeText(clone.textContent);
     originalBodies.set(chapter.id, clone.innerHTML);
+    originalTexts.set(chapter.id, text);
   });
+
+  function languageSignals(text) {
+    const words = normalizeText(text).toLowerCase().match(/[a-zàâçéèêëîïôûùüÿñæœ'-]+/g) || [];
+    let fr = 0, en = 0;
+    for (const word of words) {
+      if (FR_WORDS.has(word)) fr++;
+      if (EN_WORDS.has(word)) en++;
+    }
+    return {words:words.length, fr, en};
+  }
+
+  function looksFrench(text) {
+    const {words,fr,en} = languageSignals(text);
+    if (words < 20) return fr >= 3 && fr > en;
+    return fr >= 5 && fr >= en * 1.18;
+  }
+
+  function isTranslatedFrench(chapterId, text) {
+    const current = normalizeText(text);
+    const original = originalTexts.get(chapterId) || '';
+    return Boolean(current && current !== original && looksFrench(current));
+  }
+
+  function textFromHtml(html) {
+    const holder = document.createElement('div');
+    holder.innerHTML = String(html || '');
+    holder.querySelectorAll('.chapter-nav, .chapter-fav-button').forEach(node => node.remove());
+    return normalizeText(holder.textContent);
+  }
+
+  function isValidFrenchRecord(record) {
+    return Boolean(record?.chapterId && record?.html &&
+      isTranslatedFrench(record.chapterId, textFromHtml(record.html)));
+  }
 
   function showToast(message) {
     if (!toast) return;
     toast.textContent = message;
     toast.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
   }
 
   function openDb() {
     return new Promise((resolve,reject) => {
-      const request = indexedDB.open(DB_NAME, DB_VERSION);
-      request.onupgradeneeded = () => {
-        const db = request.result;
-        if (!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE, { keyPath:'key' });
+      const req = indexedDB.open(DB_NAME, DB_VERSION);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if (!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE,{keyPath:'key'});
       };
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
     });
   }
 
-  function keyFor(storySlug, chapterId) { return `${storySlug}::${chapterId}`; }
+  function keyFor(storySlug, chapterId) {
+    return `${storySlug}::${chapterId}`;
+  }
 
   function storyData() {
     const story = EVERLORE_STORIES?.[activeStoryIndex];
     const container = document.querySelector(`.story-content[data-story="${story?.slug}"]`);
-    return { story, container, chapters: container ? [...container.querySelectorAll('.chapter')] : [] };
+    return {story, container, chapters: container ? [...container.querySelectorAll('.chapter')] : []};
   }
 
-  function bodyHtml(chapter) {
-    const clone = chapter.cloneNode(true);
-    clone.querySelector('.chapter-nav')?.remove();
-    return clone.innerHTML;
-  }
-
-  function replaceBody(chapter, html) {
-    if (!chapter || typeof html !== 'string') return;
-    const nav = chapter.querySelector('.chapter-nav')?.cloneNode(true);
-    chapter.innerHTML = html;
-    if (nav) chapter.appendChild(nav);
+  async function getAllRecords() {
+    const db = await openDb();
+    return new Promise((resolve,reject) => {
+      const tx = db.transaction(STORE,'readonly');
+      const req = tx.objectStore(STORE).getAll();
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => reject(req.error);
+      tx.oncomplete = () => db.close();
+    });
   }
 
   async function getRecord(key) {
@@ -376,78 +657,212 @@ window.addEventListener('hashchange', activateFromHash);
     });
   }
 
-  async function cachedCount() {
-    const {story,chapters} = storyData();
-    if (!story) return {count:0,total:0};
-    let count = 0;
-    for (const chapter of chapters) {
-      if (await getRecord(keyFor(story.slug, chapter.id))) count++;
+  async function putRecord(record) {
+    const db = await openDb();
+    await new Promise((resolve,reject) => {
+      const tx = db.transaction(STORE,'readwrite');
+      tx.objectStore(STORE).put(record);
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+      tx.onabort = () => reject(tx.error);
+    });
+    db.close();
+  }
+
+  async function validRecordsForCurrentStory() {
+    const {story} = storyData();
+    if (!story) return new Map();
+    const records = await getAllRecords();
+    const valid = new Map();
+    for (const record of records) {
+      if (record.storySlug === story.slug && isValidFrenchRecord(record)) {
+        valid.set(record.chapterId, record);
+        lastSavedFingerprints.set(record.chapterId, textFingerprint(textFromHtml(record.html)));
+      }
     }
-    return {count,total:chapters.length};
+    return valid;
   }
 
   async function refreshCount() {
     try {
-      const {count,total} = await cachedCount();
-      if (translationCount) translationCount.textContent = `${count}/${total}`;
-    } catch (e) {
+      const {story,chapters} = storyData();
+      if (!story) return;
+      const valid = await validRecordsForCurrentStory();
+      const count = chapters.filter(ch => valid.has(ch.id)).length;
+      const total = chapters.length;
+
+      if (translationCount) {
+        translationCount.textContent = `${count}/${total}`;
+        translationCount.classList.toggle('is-complete', total > 0 && count === total);
+        translationCount.classList.toggle('is-partial', count > 0 && count < total);
+      }
+
+      if (saveButton) {
+        const active = languageMode === 'fr';
+        saveButton.classList.toggle('is-fr-active', active);
+        saveButton.classList.toggle('is-fr-complete', active && total > 0 && count === total);
+        saveButton.setAttribute('aria-pressed', String(active));
+        saveButton.textContent = active ? (count === total && total > 0 ? 'FR ✓' : 'FR ●') : '↧ FR';
+      }
+    } catch (_) {
       if (translationCount) translationCount.textContent = '—';
     }
   }
 
-  async function saveDisplayedFrench() {
-    const {story,chapters} = storyData();
-    if (!story || !chapters.length) return;
+  function scheduleRefresh() {
+    clearTimeout(refreshTimer);
+    refreshTimer = setTimeout(refreshCount, 600);
+  }
+
+  async function saveChapterIfFrench(chapter) {
+    const {story} = storyData();
+    if (!story || !chapter?.id) return false;
+
+    const text = chapterText(chapter);
+    if (!isTranslatedFrench(chapter.id, text)) return false;
+
+    const fingerprint = textFingerprint(text);
+    if (lastSavedFingerprints.get(chapter.id) === fingerprint) return false;
+
+    const html = chapterHtml(chapter);
+    await putRecord({
+      key:keyFor(story.slug, chapter.id),
+      storySlug:story.slug,
+      chapterId:chapter.id,
+      html,
+      detectedLanguage:'fr',
+      detectionVersion:2,
+      savedAt:Date.now()
+    });
+
+    lastSavedFingerprints.set(chapter.id, fingerprint);
+    scheduleRefresh();
+    return true;
+  }
+
+  function markChapterDirty(chapterId) {
+    if (!chapterId || languageMode !== 'fr') return;
+    dirtyChapterIds.add(chapterId);
+    scheduleDirtyProcessing();
+  }
+
+  function scheduleDirtyProcessing() {
+    if (processingDirty) return;
+    clearTimeout(dirtyTimer);
+    dirtyTimer = setTimeout(processDirtyQueue, 1200);
+  }
+
+  async function processDirtyQueue() {
+    if (processingDirty || languageMode !== 'fr') return;
+    processingDirty = true;
+
     try {
-      const db = await openDb();
-      await new Promise((resolve,reject) => {
-        const tx = db.transaction(STORE,'readwrite');
-        const store = tx.objectStore(STORE);
-        const now = Date.now();
-        chapters.forEach(chapter => store.put({
-          key:keyFor(story.slug,chapter.id),
-          storySlug:story.slug,
-          chapterId:chapter.id,
-          html:bodyHtml(chapter),
-          savedAt:now
-        }));
-        tx.oncomplete = resolve;
-        tx.onerror = () => reject(tx.error);
-        tx.onabort = () => reject(tx.error);
-      });
-      db.close();
-      await refreshCount();
-      showToast(`${chapters.length} chapitres mémorisés tels qu'ils sont affichés.`);
-    } catch (e) {
-      showToast('Impossible de mémoriser la traduction sur cet appareil.');
+      while (dirtyChapterIds.size && languageMode === 'fr') {
+        const chapterId = dirtyChapterIds.values().next().value;
+        dirtyChapterIds.delete(chapterId);
+        const chapter = document.getElementById(chapterId);
+        if (chapter) {
+          try { await saveChapterIfFrench(chapter); } catch (_) {}
+        }
+        // Rend la main au navigateur entre deux chapitres.
+        await new Promise(resolve => setTimeout(resolve, 80));
+      }
+    } finally {
+      processingDirty = false;
+      if (dirtyChapterIds.size) scheduleDirtyProcessing();
     }
+  }
+
+  function chapterIdFromMutation(mutation) {
+    let node = mutation.target;
+    if (node?.nodeType === Node.TEXT_NODE) node = node.parentElement;
+    const direct = node?.closest?.('.chapter');
+    if (direct?.id) return direct.id;
+
+    for (const added of mutation.addedNodes || []) {
+      const el = added.nodeType === Node.ELEMENT_NODE ? added : added.parentElement;
+      const chapter = el?.closest?.('.chapter');
+      if (chapter?.id) return chapter.id;
+    }
+    return '';
+  }
+
+  function startProgressiveObserver() {
+    mutationObserver?.disconnect();
+    const {container} = storyData();
+    if (!container) return;
+
+    mutationObserver = new MutationObserver(mutations => {
+      if (languageMode !== 'fr' || Date.now() < ignoreMutationsUntil) return;
+      for (const mutation of mutations) {
+        const chapterId = chapterIdFromMutation(mutation);
+        if (chapterId) dirtyChapterIds.add(chapterId);
+      }
+      if (dirtyChapterIds.size) scheduleDirtyProcessing();
+    });
+
+    mutationObserver.observe(container,{
+      subtree:true,
+      childList:true,
+      characterData:true
+    });
+  }
+
+  function replaceBody(chapter, html) {
+    if (!chapter || typeof html !== 'string') return;
+    const nav = chapter.querySelector('.chapter-nav')?.cloneNode(true);
+    ignoreMutationsUntil = Date.now() + 900;
+    chapter.innerHTML = html;
+    if (nav) chapter.appendChild(nav);
   }
 
   async function restoreOriginal() {
     const {chapters} = storyData();
-    chapters.forEach(chapter => {
+    dirtyChapterIds.clear();
+    ignoreMutationsUntil = Date.now() + 900;
+    for (const chapter of chapters) {
       const html = originalBodies.get(chapter.id);
-      if (html) replaceBody(chapter, html);
-    });
+      if (html) replaceBody(chapter,html);
+    }
   }
 
   async function applyCachedFrench({silent=false}={}) {
     const {story,chapters} = storyData();
     if (!story) return;
+
+    const valid = await validRecordsForCurrentStory();
     let found = 0;
+    ignoreMutationsUntil = Date.now() + 900;
+
     for (const chapter of chapters) {
-      const record = await getRecord(keyFor(story.slug, chapter.id));
-      if (record?.html) { replaceBody(chapter, record.html); found++; }
-      else {
+      const record = valid.get(chapter.id);
+      if (record?.html) {
+        replaceBody(chapter,record.html);
+        found++;
+      } else {
         const original = originalBodies.get(chapter.id);
-        if (original) replaceBody(chapter, original);
+        if (original) replaceBody(chapter,original);
       }
     }
+
     if (!silent) {
-      if (found === 0) showToast('Aucune traduction française mémorisée pour cette histoire. Traduisez-la avec Chrome puis cliquez sur ↧ FR.');
-      else if (found < chapters.length) showToast(`${found}/${chapters.length} chapitres français disponibles hors ligne.`);
-      else showToast('Traduction française chargée depuis le cache local.');
+      if (!found) showToast("Aucune traduction française valide mémorisée pour l'instant.");
+      else if (found < chapters.length) showToast(`${found}/${chapters.length} chapitres français chargés.`);
+      else showToast("Traduction française complète chargée.");
     }
+  }
+
+  async function manualRescan() {
+    const {chapters} = storyData();
+    let saved = 0;
+    for (const chapter of chapters) {
+      try {
+        if (await saveChapterIfFrench(chapter)) saved++;
+      } catch (_) {}
+      await new Promise(resolve => setTimeout(resolve, 60));
+    }
+    await refreshCount();
+    showToast(saved ? `${saved} chapitre${saved > 1 ? 's' : ''} français mis à jour.` : "Aucune nouvelle traduction française détectée.");
   }
 
   function syncLanguageUi(mode) {
@@ -456,7 +871,13 @@ window.addEventListener('hashchange', activateFromHash);
     languageMenu?.querySelectorAll('.ever-dropdown-option').forEach(btn =>
       btn.setAttribute('aria-selected', String(btn.dataset.value === languageMode))
     );
-    try { localStorage.setItem('everloreLanguageMode', languageMode); } catch (e) {}
+    if (saveButton) {
+      const active = languageMode === 'fr';
+      saveButton.classList.toggle('is-fr-active',active);
+      saveButton.setAttribute('aria-pressed',String(active));
+      saveButton.textContent = active ? 'FR ●' : '↧ FR';
+    }
+    try { localStorage.setItem('everloreLanguageMode',languageMode); } catch (_) {}
   }
 
   async function applyLanguage(mode,{silent=false}={}) {
@@ -464,6 +885,7 @@ window.addEventListener('hashchange', activateFromHash);
     if (languageMode === 'fr') await applyCachedFrench({silent});
     else await restoreOriginal();
     await refreshCount();
+    startProgressiveObserver();
   }
 
   languageTrigger?.addEventListener('click', () => toggleEverDropdown(languageDropdown));
@@ -471,21 +893,29 @@ window.addEventListener('hashchange', activateFromHash);
     closeEverDropdown(languageDropdown);
     await applyLanguage(btn.dataset.value);
   }));
-  saveButton?.addEventListener('click', saveDisplayedFrench);
+
+  saveButton?.addEventListener('click', manualRescan);
 
   const baseRenderStory = renderStory;
   renderStory = function(...args) {
     const result = baseRenderStory(...args);
-    setTimeout(() => { applyLanguage(languageMode,{silent:true}); }, 0);
+    setTimeout(async () => {
+      await applyLanguage(languageMode,{silent:true});
+      startProgressiveObserver();
+    },0);
     return result;
   };
 
   let savedMode = 'original';
-  try { savedMode = localStorage.getItem('everloreLanguageMode') || 'original'; } catch (e) {}
+  try { savedMode = localStorage.getItem('everloreLanguageMode') || 'original'; } catch (_) {}
   syncLanguageUi(savedMode);
   applyLanguage(savedMode,{silent:true});
 
-  window.everloreTranslationCache = { saveDisplayedFrench, applyLanguage, refreshCount };
+  window.everloreTranslationCache = {
+    applyLanguage,
+    refreshCount,
+    rescan:manualRescan
+  };
 })();
 
 

@@ -1,11 +1,12 @@
-const CACHE_NAME = 'everlore-va-v22-1';
+const CACHE_NAME = 'everlore-va-v25-mobile-responsive-test';
 const PRECACHE = [
   "./",
   "./index.html",
   "./app.js",
   "./bootstrap.js",
+  "./register-sw.js",
   "./manifest.webmanifest",
-  "./stories/catalog.json",
+  "./stories/catalog.js",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/icon-maskable-512.png",
@@ -13,16 +14,7 @@ const PRECACHE = [
   "./icons/favicon.ico",
   "./icons/favicon-16.png",
   "./icons/favicon-32.png",
-  "./stories/vampire-academy/never-tear-us-apart.html",
-  "./stories/vampire-academy/into-the-ether.html",
-  "./stories/vampire-academy/i-never-told-you-i-love-you.html",
-  "./stories/vampire-academy/reality-bites.html",
-  "./stories/vampire-academy/afterlife.html",
-  "./stories/vampire-academy/love-fades-mine-has.html",
-  "./stories/vampire-academy/with-or-without-you.html",
-  "./stories/vampire-academy/anything-for-her.html",
-  "./stories/vampire-academy/building-the-tension.html",
-  "./stories/vampire-academy/her-alpha.html"
+  "./assets/fond-nuit-sauvage.png"
 ];
 
 self.addEventListener('install', event => {

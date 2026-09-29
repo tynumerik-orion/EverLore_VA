@@ -1,21 +1,23 @@
-# EverLore — Vampire Academy (PWA)
+# EverLore — Vampire Academy V25 TEST MOBILE
 
-Version temporaire installable préparée pour GitHub Pages.
+Passe responsive mobile dédiée.
 
-## Organisation
+## Objectif
+Le desktop > 860 px reste volontairement inchangé.
 
-- `index.html` : interface de lecture EverLore
-- `app.js` : fonctions de la liseuse
-- `bootstrap.js` : charge le catalogue et les histoires
-- `stories/catalog.json` : catalogue
-- `stories/vampire-academy/` : une histoire par fichier HTML
-- `icons/` : favicons et icônes PWA
-- `manifest.webmanifest` : installation
-- `sw.js` : fonctionnement hors ligne
+## Ajustements mobile
+- lecteur pleine largeur ;
+- titre et auteur redimensionnés ;
+- métadonnées compactées ;
+- sélecteur d'histoire réduit ;
+- résumé / contenu plus compacts ;
+- sommaire en une colonne ;
+- ornement réduit ;
+- barre Langue / FR / compteur compacte ;
+- texte chapitre autour de 17–18 px ;
+- marges et espacements resserrés ;
+- panneau `Aa` adapté au tactile ;
+- boutons minimum ~40–44 px ;
+- fond conservé sans étirement excessif.
 
-## Ajouter une histoire plus tard
-
-Ajouter son fichier dans `stories/vampire-academy/` et son entrée dans `stories/catalog.json`.
-Le cache `sw.js` devra également changer de version et inclure le nouveau fichier.
-
-Les cinq histoires historiques gardent leurs préfixes `s1` à `s5` afin de préserver autant que possible les clés locales existantes.
+À tester sur smartphone réel avant toute intégration GitHub Pages.
